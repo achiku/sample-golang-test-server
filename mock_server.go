@@ -6,27 +6,33 @@ import (
 	"net/http"
 )
 
-func hello(w http.ResponseWriter, r *http.Request) {
-	log.Println("accessed from client!")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "hello!")
+func hello(logger Logfer) handler {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logger.Logf("yeaaaaaaaahhh!!")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "hello!")
+	}
 }
 
-func goodbye(w http.ResponseWriter, r *http.Request) {
-	log.Println("accessed from client!")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "goodbye!")
+func goodbye(logger Logfer) handler {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logger.Logf("goodby!!!!!")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "goodbye!")
+	}
 }
+
+type handler func(w http.ResponseWriter, r *http.Request)
 
 // URLHandlerMap url and handler
-type URLHandlerMap []map[string]func(w http.ResponseWriter, r *http.Request)
+type URLHandlerMap []map[string]handler
 
 // NewMockServerMux creates new mock server mux
-func NewMockServerMux(hm URLHandlerMap) *http.ServeMux {
+func NewMockServerMux(hm URLHandlerMap, logger Logfer) *http.ServeMux {
 	mux := http.NewServeMux()
 	if hm == nil {
-		mux.HandleFunc("/hello", hello)
-		mux.HandleFunc("/goodbye", goodbye)
+		mux.HandleFunc("/hello", hello(logger))
+		mux.HandleFunc("/goodbye", goodbye(logger))
 		return mux
 	}
 
@@ -40,10 +46,22 @@ func NewMockServerMux(hm URLHandlerMap) *http.ServeMux {
 
 // NewMockServer creates new mock server
 func NewMockServer(port string) *http.Server {
-	mux := NewMockServerMux(nil)
+	logger := mockServerLogger{}
+	mux := NewMockServerMux(nil, logger)
 	server := &http.Server{
 		Handler: mux,
 		Addr:    "localhost:" + port,
 	}
 	return server
+}
+
+// Logfer inerface Logf
+type Logfer interface {
+	Logf(format string, args ...interface{})
+}
+
+type mockServerLogger struct{}
+
+func (l mockServerLogger) Logf(format string, args ...interface{}) {
+	log.Println(format, args)
 }

@@ -16,7 +16,7 @@ func TestNewClient(t *testing.T) {
 
 func TestClientHello(t *testing.T) {
 	c := NewClient()
-	s := httptest.NewServer(NewMockServerMux(nil))
+	s := httptest.NewServer(NewMockServerMux(nil, t))
 	defer s.Close()
 
 	name := "achiku"
@@ -42,7 +42,7 @@ func TestClientHelloError(t *testing.T) {
 			},
 		},
 	}
-	s := httptest.NewServer(NewMockServerMux(hm))
+	s := httptest.NewServer(NewMockServerMux(hm, t))
 	defer s.Close()
 
 	name := "achiku"
