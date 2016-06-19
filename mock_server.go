@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func hello(logger Logfer) handler {
+func hello(logger Logfer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger.Logf("yeaaaaaaaahhh!!")
 		w.WriteHeader(http.StatusOK)
@@ -14,7 +14,7 @@ func hello(logger Logfer) handler {
 	}
 }
 
-func goodbye(logger Logfer) handler {
+func goodbye(logger Logfer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger.Logf("goodby!!!!!")
 		w.WriteHeader(http.StatusOK)
@@ -22,10 +22,8 @@ func goodbye(logger Logfer) handler {
 	}
 }
 
-type handler func(w http.ResponseWriter, r *http.Request)
-
 // URLHandlerMap url and handler
-type URLHandlerMap []map[string]handler
+type URLHandlerMap []map[string]http.HandlerFunc
 
 // NewMockServerMux creates new mock server mux
 func NewMockServerMux(hm URLHandlerMap, logger Logfer) *http.ServeMux {
